@@ -1,0 +1,213 @@
+package com.antielytratarget.netty;
+
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
+import com.github.retrooper.packetevents.protocol.player.ClientVersion;
+import com.github.retrooper.packetevents.protocol.world.BlockFace;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClickWindow;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientClientStatus;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientEntityAction;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerBlockPlacement;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerDigging;
+
+public final class GrimPacketOrderProcessor {
+
+    private boolean openingInventory;
+    private boolean swapping;
+    private boolean dropping;
+    private boolean interacting;
+    private boolean attacking;
+    private boolean releasing;
+    private boolean digging;
+    private boolean sprinting;
+    private boolean sneaking;
+    private boolean placing;
+    private boolean using;
+    private boolean picking;
+    private boolean clickingInInventory;
+    private boolean closingInventory;
+    private boolean quickMoveClicking;
+    private boolean pickUpClicking;
+    private boolean leavingBed;
+    private boolean startingToGlide;
+    private boolean jumpingWithMount;
+    private boolean stabbing;
+    private boolean canSkipTicks;
+
+    public void onPacketReceive(PacketReceiveEvent event, boolean insideVehicle,
+                                PlayerPacketData data, boolean tickPacket) {
+        PacketTypeCommon packetType = event.getPacketType();
+        ClientVersion clientVersion = event.getClientVersion();
+        canSkipTicks = clientVersion.isNewerThanOrEquals(ClientVersion.V_1_9)
+                && !supportsEndTick(clientVersion);
+
+        if (packetType == PacketType.Play.Client.CLIENT_STATUS) {
+            if (new WrapperPlayClientClientStatus(event).getAction()
+                    == WrapperPlayClientClientStatus.Action.OPEN_INVENTORY_ACHIEVEMENT) {
+                openingInventory = true;
+            }
+        }
+
+        if (packetType == PacketType.Play.Client.INTERACT_ENTITY) {
+            if (new WrapperPlayClientInteractEntity(event).getAction()
+                    == WrapperPlayClientInteractEntity.InteractAction.ATTACK) {
+                attacking = true;
+            } else {
+                interacting = true;
+            }
+        }
+
+        if (packetType == PacketType.Play.Client.ATTACK || packetType == PacketType.Play.Client.SPECTATE_ENTITY) {
+            attacking = true;
+        }
+
+        if (packetType == PacketType.Play.Client.PLAYER_DIGGING) {
+            switch (new WrapperPlayClientPlayerDigging(event).getAction()) {
+                case SWAP_ITEM_WITH_OFFHAND -> swapping = true;
+                case DROP_ITEM, DROP_ITEM_STACK -> dropping = true;
+                case RELEASE_USE_ITEM -> releasing = true;
+                case FINISHED_DIGGING, CANCELLED_DIGGING, START_DIGGING -> digging = true;
+                case STAB -> stabbing = true;
+            }
+        }
+
+        if (packetType == PacketType.Play.Client.ENTITY_ACTION) {
+            switch (new WrapperPlayClientEntityAction(event).getAction()) {
+                case START_SPRINTING, STOP_SPRINTING -> {
+                    if (!insideVehicle) {
+                        sprinting = true;
+                    }
+                }
+                case STOP_SNEAKING, START_SNEAKING -> sneaking = true;
+                case LEAVE_BED -> leavingBed = true;
+                case START_FLYING_WITH_ELYTRA -> startingToGlide = true;
+                case OPEN_HORSE_INVENTORY -> openingInventory = true;
+                case START_JUMPING_WITH_HORSE, STOP_JUMPING_WITH_HORSE -> jumpingWithMount = true;
+            }
+        }
+
+        if (packetType == PacketType.Play.Client.USE_ITEM) {
+            using = true;
+        }
+
+        if (packetType == PacketType.Play.Client.PLAYER_BLOCK_PLACEMENT) {
+            if (new WrapperPlayClientPlayerBlockPlacement(event).getFace() == BlockFace.OTHER) {
+                using = true;
+            } else {
+                placing = true;
+            }
+        }
+
+        if (packetType == PacketType.Play.Client.PICK_ITEM) {
+            picking = true;
+        }
+
+        if (packetType == PacketType.Play.Client.CLICK_WINDOW) {
+            clickingInInventory = true;
+            switch (new WrapperPlayClientClickWindow(event).getWindowClickType()) {
+                case QUICK_MOVE -> quickMoveClicking = true;
+                case PICKUP, PICKUP_ALL -> pickUpClicking = true;
+            }
+        }
+
+        if (packetType == PacketType.Play.Client.CLOSE_WINDOW) {
+            closingInventory = true;
+        }
+
+        if (!data.cameraEntitySelf.get() || tickPacket) {
+            reset();
+        }
+    }
+
+    public boolean isRightClicking() {
+        return placing || using || interacting;
+    }
+
+    public boolean isAttackingOrStabbing() {
+        return attacking || stabbing;
+    }
+
+    public boolean isOpeningInventory() {
+        return openingInventory;
+    }
+
+    public boolean isReleasing() {
+        return releasing;
+    }
+
+    public boolean isSneaking() {
+        return sneaking;
+    }
+
+    public boolean isSprinting() {
+        return sprinting;
+    }
+
+    public boolean isLeavingBed() {
+        return leavingBed;
+    }
+
+    public boolean isStartingToGlide() {
+        return startingToGlide;
+    }
+
+    public boolean isJumpingWithMount() {
+        return jumpingWithMount;
+    }
+
+    public boolean isUsing() {
+        return using;
+    }
+
+    public boolean isDigging() {
+        return digging;
+    }
+
+    public boolean isPicking() {
+        return picking;
+    }
+
+    public boolean canSkipTicks() {
+        return canSkipTicks;
+    }
+
+    private boolean supportsEndTick(ClientVersion clientVersion) {
+        if (clientVersion.isOlderThan(ClientVersion.V_1_21_2)) {
+            return false;
+        }
+
+        try {
+            return PacketEvents.getAPI().getServerManager().getVersion()
+                    .isNewerThanOrEquals(ServerVersion.V_1_21_2);
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    public void reset() {
+        openingInventory = false;
+        swapping = false;
+        dropping = false;
+        attacking = false;
+        interacting = false;
+        releasing = false;
+        digging = false;
+        placing = false;
+        using = false;
+        picking = false;
+        sprinting = false;
+        sneaking = false;
+        clickingInInventory = false;
+        closingInventory = false;
+        quickMoveClicking = false;
+        pickUpClicking = false;
+        leavingBed = false;
+        startingToGlide = false;
+        jumpingWithMount = false;
+        stabbing = false;
+    }
+}

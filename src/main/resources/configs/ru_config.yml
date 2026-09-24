@@ -1,0 +1,517 @@
+# ╔═══════════════════════════════════════════════════════════════════════╗
+# ║  AntiElytraTarget v5.3.1.3 — Конфигурация                           ║
+# ║  Модульная архитектура проверок с системой уровней нарушений VL         ║
+# ║                                                                       ║
+# ║  ФОРМАТЫ ЦВЕТОВ — все три формата можно использовать в одной строке:  ║
+# ║    MiniMessage : <red>, <gradient:red:gold>, <bold>, <italic>         ║
+# ║                  <hover:show_text:'подсказка'>,                       ║
+# ║                  <click:run_command:...>                              ║
+# ║    Hex-цвета  : &#FF5555  или  <#FF5555>  или  <color:#FF5555>        ║
+# ║    Legacy-коды: &a, &c, &e, &7, &f, &l, &o …                          ║
+# ╚═══════════════════════════════════════════════════════════════════════╝
+
+# ── Основные настройки ─────────────────────────────────────────────────
+general:
+  enabled: true
+  prefix: "<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset>"
+  # Если включено, flags.log содержит расширенные данные времени выполнения для каждого флага.
+  debugmod: true
+
+performance:
+  # Если TPS за 1 минуту падает ниже указанного значения,
+  # ресурсоёмкие процессы обнаружения и воспроизведения автоматически приостанавливаются.
+  # Установите 0, чтобы отключить.
+  disable_below_tps: 16.0
+
+# ── Обнаружение — глобальный переключатель ─────────────────────────────
+detection:
+  enabled: true
+  # Отменяет попытки поместить FIREWORK_ROCKET во вторую руку.
+  # Используется только отмена события, без перезаписи предметов.
+  block_offhand_firework: true
+  # Запрещает атаковать игроков, если FIREWORK_ROCKET находится в основной руке.
+  block_mainhand_firework_attacks: false
+
+compatibility:
+  # Включайте только если сервер используют Bedrock-игроки Floodgate/Geyser.
+  bedrock_support: false
+  # Имена с этим префиксом считаются Bedrock.
+  bedrock_name_prefix: "."
+  # Синтетические ping/transaction-пакеты обеспечивают проверки порядка пакетов.
+  # Они отправляются с низкой частотой и положительными ID для совместимости с античитами.
+  synthetic_transactions: true
+  synthetic_transaction_interval_ticks: 5
+
+# ╔═══════════════════════════════════════════════════════════════════════╗
+# ║  ПРОВЕРКИ — каждая проверка содержит:                                 ║
+# ║    enabled     : включить/выключить                                   ║
+# ║    decay       : снижение VL за каждый тик без срабатывания           ║
+# ║                  с постепенным снижением уровня нарушений                                      ║
+# ║    + индивидуальные пороги конкретной проверки                        ║
+# ╚═══════════════════════════════════════════════════════════════════════╝
+
+checks:
+  # ── БОЕВЫЕ ПРОВЕРКИ ─────────────────────────────────────────────────
+  AngleDeviation:
+    enabled: true
+    decay: 0.1
+    sample_size: 25
+    zfactor_vl_limit: 7.0
+
+  AimSnap:
+    enabled: true
+    decay: 0.15
+    spike_vl_limit: 7.0
+    randomizer_vl_limit: 2.5
+
+  AttackRate:
+    enabled: true
+    decay: 0.2
+    max_hits_per_second: 12
+
+  TimingConsistency:
+    enabled: true
+    decay: 0.1
+    max_std_dev_ms: 50.0
+    sample_size: 6
+
+  ElytraCombatRate:
+    enabled: true
+    decay: 0.15
+    max_rot_per_tick: 40.0
+    speed_threshold: 0.5
+
+  # ── ПРОВЕРКИ НАВЕДЕНИЯ ──────────────────────────────────────────────
+  SmoothAim:
+    enabled: true
+    decay: 0.1
+    max_std_dev: 1.5
+    sample_size: 30
+
+  GCD:
+    enabled: true
+    decay: 0.05
+
+  LookVectorLock:
+    enabled: true
+    decay: 0.1
+    sample_size: 12
+    max_variance: 2.0
+
+  PitchLock:
+    enabled: true
+    decay: 0.1
+    sample_size: 15
+    max_variance: 4.0
+
+  RotationConsistency:
+    enabled: true
+    decay: 0.1
+    sample_size: 10
+    max_std_dev: 1.0
+
+  AimComplex:
+    enabled: true
+    decay: 0.05
+    entropy_vl_limit: 30
+    distinct_vl_limit: 4.0
+    randomizer_vl_limit: 2.5
+
+  AimHeuristic:
+    enabled: true
+    decay: 0.03
+    basic_vl_limit: 400
+    basic_l2_vl_limit: 400
+    pattern_buffer_limit: 2.5
+    factor_buffer_limit: 3.0
+
+  # ── ПРОВЕРКИ ЭЛИТР ──────────────────────────────────────────────────
+  VelocityAlign:
+    enabled: true
+    decay: 0.1
+    match_threshold: 8.0
+    consecutive_matches: 12
+    max_velocity_magnitude: 1.8
+
+  StrafeSync:
+    enabled: false
+    decay: 0.05
+    max_deviation: 0.15
+    sample_size: 20
+    approach_rate_skip: 0.3
+
+  AccelerationLock:
+    enabled: true
+    decay: 0.05
+    max_std_dev: 0.02
+    sample_size: 30
+    max_target_age_ms: 2500
+
+  ElytraPhysics:
+    enabled: true
+    decay: 0.05
+
+  # ── ПРОЧИЕ ПРОВЕРКИ ─────────────────────────────────────────────────
+  FireworkPattern:
+    enabled: true
+    decay: 0.05
+    sample_size: 8
+    max_interval_std_dev: 100.0
+
+  OffhandFireworkSwitch:
+    enabled: true
+    decay: 0.1
+
+  # ЭКСПЕРИМЕНТАЛЬНО
+  IncapableSwap:
+    enabled: true
+    decay: 0.08
+    max_tick_span: 1
+    max_sequence_ms: 175
+    evidence_window_ms: 8000
+    evidence_threshold: 3.0
+
+  HeadPitchDivergence:
+    enabled: true
+    decay: 0.1
+    min_y_delta_blocks: 2.0
+    max_pitch_delta_deg: 1.5
+
+  UseItemRotationMismatch:
+    enabled: true
+    decay: 0.05
+    # Проверяет соответствие yaw/pitch пакета USE_ITEM повороту текущего тика:
+    # yaw/pitch при USE_ITEM должны совпадать с поворотом текущего тика.
+    # Оставьте true, чтобы допускать предыдущий поворот
+    # в тик-пакетах, содержащих данные о вращении.
+    allow_previous_rotation: true
+    # false = проверять каждого игрока версии 1.21+,
+    # true = проверять только во время полёта/недавнего полёта на элитрах.
+    require_gliding: true
+    require_firework: true
+    # Дополнительная защита от спама в миллисекундах.
+    # 0 = флаг за каждое несовпадение без дополнительной задержки.
+    min_interval_ms: 0
+
+  PacketOrderE:
+    enabled: true
+    decay: 0.05
+
+  RotationPrediction:
+    enabled: true
+    decay: 0.1
+    min_target_distance: 0.75
+    max_target_distance: 10.0
+    target_lock_min_center_distance: 0.35
+    orbit_max_target_distance: 8.5
+    min_previous_error: 18.0
+    max_landing_error: 0.20
+    max_hit_error: 0.50
+    min_geodesic_rotation: 12.0
+    max_geodesic_rotation: 160.0
+    min_convergence_ratio: 0.985
+    max_correction_residual: 0.35
+    rapid_hit_min_yaw: 75.0
+    min_sample_gap_ms: 25
+    max_sample_gap_ms: 100
+    max_candidate_age_ms: 125
+    rapid_hit_window_ms: 250
+    orbit_detection_enabled: true
+    validation_samples: 5
+    evidence_hit_window: 16
+    required_confirmed_candidates: 3
+    rapid_hit_required: 3
+    evidence_window_ms: 6000
+    alert_cooldown_ms: 5000
+
+# ── Наказания ─────────────────────────────────────────────────────────
+penalty:
+  test_mode_threshold: 2
+  block_mode_threshold: 5
+  test_mode_block_ratio: 0.5
+  kick_enabled: true
+  kick_threshold: 20
+  kick_message: "<red>Обнаружен чит ElytraTarget."
+  kick_command_enabled: false
+  kick_command: "kick {player} Обнаружен ElytraTarget"
+  ban_enabled: false
+  ban_threshold: 60
+  ban_message: "<red>Использование чита ElytraTarget."
+  ban_duration_minutes: 1440
+  ban_command_enabled: false
+  ban_command: "tempban {player} 1d Обнаружен ElytraTarget"
+
+# ── Логирование ───────────────────────────────────────────────────────
+logging:
+  file_logging: true
+  log_file_path: "logs/flags.log"
+  console_logging: true
+  op_alerts_default: true
+  log_location: true
+  log_victim_info: true
+  max_profile_entries: 200
+
+# ── Исключения ────────────────────────────────────────────────────────
+exemptions:
+  max_ping: 100
+  exempt_creative: true
+  exempt_spectator: true
+  bypass_permission: "antielytratarget.bypass"
+
+# ── Система повторов ──────────────────────────────────────────────────
+# Записывает действия игроков при достижении порога флагов.
+# Повторы можно просматривать через /aet replay в GUI-меню.
+# Внешние NPC-плагины не требуются — используются прямые NMS-пакеты.
+replay:
+  # Включить/выключить систему повторов. По умолчанию: false.
+  enabled: false
+
+  # Запись всегда начинается со второго записанного флага, без буфера предварительной записи.
+
+  # Длительность каждой записи повтора в секундах.
+  duration_seconds: 45
+
+  # Живые сущности вокруг зафлагованного игрока
+  # сохраняются в каждом кадре повтора.
+  entity_radius: 18.0
+  max_actors_per_frame: 24
+  max_effects_per_frame: 128
+
+  # Сохранять недавно атакованные цели в записи,
+  # даже если они ненадолго покидают поле радиус установленный выше.
+  target_keep_seconds: 8
+
+  # Максимальное количество файлов повторов, хранящихся на диске.
+  # Старые повторы не удаляются автоматически;
+  # управляйте ими вручную или через GUI.
+  max_files: 100
+  isolation_radius: 96.0
+
+# ── Уведомления ───────────────────────────────────────────────────────
+# Сообщение оповещения, отображаемое в чате.
+# При наведении на него показывается подробная информация о игроке.
+# Доступные плейсхолдеры: {player} {check} {flags} {window} {location}
+
+notifications:
+  alert_message: "<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset><yellow>{player} <dark_gray>| <red>{check} <dark_gray>| <gray>{flags}x <dark_gray>| <gray>{location}"
+
+  # Действие клика применяется ко всей строке оповещения.
+  # alert_click_action: run_command, suggest_command, open_url, copy_to_clipboard
+  # Плейсхолдеры: те же, что в alert_message и alert_hover.
+  alert_click_enabled: true
+  alert_click_action: run_command
+  alert_click_command: "/aet tpa {player}"
+
+  # Подсказка, отображаемая при наведении на строку оповещения.
+  # Используйте \n для новых строк. Поддерживаются MiniMessage, hex и legacy-цвета.
+  # Плейсхолдеры: {player} {ping} {gamemode} {world} {x} {y} {z}
+  #               {check} {flags} {window} {victim}
+  alert_hover: '<gray>Игрок: <white>{player}\n<gray>Пинг: <green>{ping} мс\n<gray>Режим игры: <aqua>{gamemode}\n<gray>Позиция: <white>{world} <yellow>{x}<gray>, <yellow>{y}<gray>, <yellow>{z}\n<gray>Проверка: <red>{check}\n<gray>Всего флагов: <red>{flags}\n<gray>Флагов в окне: <yellow>{window}\n<gray>Жертва: <white>{victim}\n\n<green>Нажмите, чтобы телепортироваться к <yellow>{player}'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# СООБЩЕНИЯ — все игровые тексты сообщений можно редактировать здесь.
+#
+# Поддерживаются все три формата цветов:
+#   MiniMessage : <red>, <green>, <yellow>, <gray>, <white>, <gold>, <aqua>
+#                 <bold>, <italic>, <gradient:red:gold>, <rainbow>, etc.
+#   Hex colors  : &#FF5555  or  <#FF5555>  or  <color:#FF5555>
+#   Legacy codes: &a=green  &c=red  &e=yellow  &7=gray  &f=white  etc.
+#
+# Поддерживаемые плейсхолдеры указаны в комментариях над каждой группой.
+# ══════════════════════════════════════════════════════════════════════════════
+messages:
+
+  # ── Общее ─────────────────────────────────────────────────────────────────
+  no_permission:       '<red>У вас нет прав для использования этой команды.'
+  in_game_only:        '<red>Эту команду можно использовать только в игре.'
+  # Плейсхолдер: {label}
+  unknown_subcommand:  '<red>Неизвестная подкоманда. Используйте /{label} help'
+  invalid_page:        '<red>Некорректный номер страницы.'
+  # Плейсхолдер: {max}
+  page_out_of_range:   '<red>Страница вне диапазона. Доступно: 1-{max}'
+
+  # ── /aet log ────────────────────────────────────────────────────────
+  log_enabled:         '<green>Оповещения о флагах <white>ВКЛЮЧЕНЫ<green>.'
+  log_enabled_sub:     '<gray>Вы будете получать игровое уведомление о каждом флаге.'
+  log_disabled:        '<red>Оповещения о флагах <white>ОТКЛЮЧЕНЫ<red>.'
+  log_disabled_sub:    '<gray>Флаги по-прежнему будут записываться в файл и консоль.'
+
+  # ── /aet reload ─────────────────────────────────────────────────────
+  # Плейсхолдер: {ms}
+  reloaded:            '<green>Конфигурация перезагружена за {ms} мс.'
+
+  # ── /aet clear ──────────────────────────────────────────────────────
+  # Плейсхолдеры: {player} {label}
+  clear_usage:         '<red>Использование: /{label} clear <игрок>'
+  clear_no_profile:    '<red>Профиль игрока {player} не найден.'
+  clear_success:       '<green>Все данные флагов игрока <yellow>{player}<green> очищены (профиль + счётчики).'
+
+  # ── /aet profile ────────────────────────────────────────────────────
+  # Плейсхолдеры: {player} {label}
+  profile_usage:       '<red>Использование: /{label} profile <игрок> [страница]'
+  profile_not_found:   '<yellow>История флагов игрока <white>{player}<yellow> не найдена.'
+
+  # ── /aet status ─────────────────────────────────────────────────────
+  tps_not_available:   '<yellow>Недоступно (сервер не Paper)'
+
+  # ── /aet help ───────────────────────────────────────────────────────
+  # Плейсхолдер: {label}
+  help_header:         '<gold>  Команды AntiElytraTarget <white>v5.3.1.3  <dark_gray>(алиас: /aet)'
+  help_log:            '<yellow>  /{label} log                    <gray>Включить или выключить игровые оповещения'
+  help_suspect:        '<yellow>  /{label} suspect                <gray>Открыть рейтинг подозреваемых'
+  help_profile:        '<yellow>  /{label} profile <игрок>        <gray>Просмотреть постраничную историю флагов'
+  help_profile_page:   '<yellow>  /{label} profile <игрок> <с>    <gray>Перейти между страницами'
+  help_clear:          '<yellow>  /{label} clear <игрок>          <gray>Очистить профиль и текущие счётчики'
+  help_status:         '<yellow>  /{label} status                 <gray>Статус плагина и текущая статистика'
+  help_reload:         '<yellow>  /{label} reload                 <gray>Перезагрузить конфигурацию активного языка'
+  help_replay:         '<yellow>  /{label} replay                 <gray>Открыть меню сохранённых повторов'
+  help_language:       '<yellow>  /{label} language               <gray>Открыть меню выбора языка'
+  help_help:           '<yellow>  /{label} help                   <gray>Показать это меню помощи'
+
+  # ── Сообщения повторов ────────────────────────────────────────────────────
+  replay_not_enabled:  '<red>Система повторов не включена.'
+  replay_no_files:     '<yellow>Сохранённые повторы не найдены.'
+  # Плейсхолдер: {player}
+  replay_started:      '<green>Запись игрока <yellow>{player}<green> начата.'
+  # Плейсхолдер: {file}
+  replay_saved:        '<green>Повтор сохранён: <yellow>{file}'
+  replay_stop:         '<yellow>Воспроизведение повтора остановлено.'
+
+  # ── Уведомления о kick / ban ──────────────────────────────────────────────
+  # Плейсхолдеры: {player} {flags}
+  notify_kick:         '<red>КИК <dark_gray>| <yellow>{player} <gray>— ElytraTarget (флагов: <red>{flags}<gray>)'
+  notify_ban:          '<red>БАН <dark_gray>| <yellow>{player} <gray>— ElytraTarget (флагов: <red>{flags}<gray>)'
+
+  # ── Выбор языка и остальные тексты времени выполнения ─────────────────────
+  language_title:      '<gold>Выберите язык'
+  language_selected:   '<green>Язык изменён на <yellow>{language}<green>.'
+  language_active:     '<green>Текущий язык'
+  language_click:      '<yellow>Нажмите, чтобы выбрать'
+  replay_usage:        '<red>Использование: /aet replay'
+  tpa_usage:           '<red>Использование: /aet tpa <игрок>'
+  player_not_found:    '<yellow>Игрок не найден: <white>{player}'
+  teleported:          '<green>Вы телепортированы к игроку <yellow>{player}<green>.'
+  profile_header_line: '<gold>  Профиль AntiElytraTarget: <yellow>{player}'
+  profile_uuid_line:   '<gray>  UUID: <white>{uuid}'
+  profile_total_page_line: '<gray>  Всего флагов: <red>{total} <gray>| Страница: <white>{page}/{pages}'
+  profile_breakdown:   '<aqua>  Распределение флагов:'
+  profile_breakdown_item: '<dark_gray>    - <yellow>{check}<gray>: <red>{count}'
+  profile_recent:      '<aqua>  Последние записи (сначала новые):'
+  profile_entry:       '<dark_gray>  [{index}] {entry}'
+  profile_navigate:    '<gray>  Для навигации используйте /aet profile {player} <страница>.'
+  status_header:       '<gold>  Статус AntiElytraTarget <white>v{version}'
+  status_plugin:       '<gray>  Плагин: <reset>{value}'
+  status_detection:    '<gray>  Обнаружение: <reset>{value}'
+  status_offhand:      '<gray>  Фейерверк во второй руке: <reset>{value}'
+  status_mainhand_attack: '<gray>  Атаки с фейерверком в основной руке: <reset>{value}'
+  status_debug:        '<gray>  Режим отладки: <reset>{value}'
+  status_replay:       '<gray>  Повторы: <reset>{value}'
+  status_hits:         '<gray>  Обработано ударов: <reset>{value}'
+  status_flags:        '<gray>  Создано флагов: <reset>{value}'
+  status_tracked:      '<gray>  Отслеживается игроков: <reset>{value}'
+  status_online:       '<gray>  Игроков в сети: <reset>{value}'
+  status_tps:          '<gray>  TPS (1/5/15 мин): <reset>{value}'
+  status_tps_short:    '<gray>  TPS: <reset>{value}'
+  yes:                 '<green>ДА'
+  no:                  '<red>НЕТ'
+  replay_no_files_player: '<yellow>Сохранённые повторы игрока <white>{player}<yellow> не найдены.'
+  replay_gui_title:    'Повторы'
+  replay_gui_title_player: 'Повторы: {player}'
+  replay_previous:     '<yellow>← Предыдущая страница'
+  replay_next:         '<yellow>Следующая страница →'
+  replay_go_page:      '<gray>Нажмите, чтобы перейти на страницу {page}'
+  replay_system:       '<gold>Система повторов'
+  replay_total:        '<gray>Всего повторов: <white>{total}'
+  replay_page:         '<gray>Страница: <white>{page}/{pages}'
+  replay_player:       '<gray>Игрок: <yellow>{player}'
+  replay_left_watch:   '<dark_gray>ЛКМ по повтору для просмотра'
+  replay_right_delete: '<dark_gray>ПКМ для удаления'
+  replay_close:        '<red>Закрыть'
+  replay_close_lore:   '<gray>Закрыть это меню'
+  replay_date:         '<gray>Дата: <white>{date}'
+  replay_duration:     '<gray>Длительность: <white>{seconds} с'
+  replay_frames:       '<gray>Кадров: <white>{frames}'
+  replay_left_watch_short: '<green>ЛКМ для просмотра'
+  replay_right_delete_short: '<red>ПКМ для удаления'
+  replay_corrupt:      '<red>Повреждённый повтор'
+  replay_file:         '<gray>Файл: <white>{file}'
+  replay_could_not_load: '<red>Не удалось загрузить этот повтор'
+  replay_deleted:      '<green>Повтор удалён: <yellow>{file}'
+  replay_delete_failed: '<red>Не удалось удалить повтор.'
+  replay_load_failed:  '<red>Не удалось загрузить повтор.'
+  replay_adapter_unavailable: '<red>NPC-адаптер повторов недоступен для этой версии сервера.'
+  replay_no_frames:    '<red>В этом повторе нет записанных кадров.'
+  replay_world_not_found: "<red>Мир '{world}' не найден."
+  replay_npc_spawn_failed: '<red>Не удалось создать NPC повтора. Точная ошибка NMS указана в консоли.'
+  replay_playing:      '<green>Воспроизводится повтор игрока <yellow>{player} <gray>({frames} кадров, {seconds} с)'
+  replay_hotbar_help:  '<gray>Панель: <yellow>1 −3 с <gray>| <yellow>4 −0.1x <gray>| <red>5 стоп <gray>| <green>6 +0.1x <gray>| <green>9 +3 с'
+  replay_stopped_npc:  '<red>Повтор остановлен, потому что не удалось создать NPC.'
+  replay_finished:     '<green>Повтор завершён.'
+  replay_flag:         '<red>Флаг повтора <dark_gray>| <yellow>{check} <gray>(всего флагов: <red>{flags}<gray>)'
+  replay_stop_item:    '<red>Остановить повтор'
+  replay_progress:     '<dark_gray>[<yellow>Повтор<dark_gray>] <gray>{current} с / {duration} с <dark_gray>(<white>{percent}%<dark_gray>) <gray>Скорость: <white>{speed}'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# GUI — рейтинг подозреваемых  (/aet suspect)
+#
+# Поддерживаются все три формата цветов (MiniMessage, Hex, legacy-коды &).
+# Плейсхолдеры указаны в комментариях над каждым ключом.
+# ══════════════════════════════════════════════════════════════════════════════
+gui:
+  suspect:
+
+    # Заголовок инвентаря в верхней части окна GUI.
+    title: '<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset><yellow>Топ подозреваемых'
+
+    # Количество слотов инвентаря (кратно 9, максимум 54).
+    size: 54
+
+    # ── Предмет головы игрока ─────────────────────────────────────────────────
+    # Отображаемое имя каждой головы игрока. Плейсхолдер: {player}
+    head_name: '<gold>{player}'
+
+    # Описание при наведении. Плейсхолдеры: {total} {window} {stage}
+    lore_total:   '<gray>Всего флагов: <red>{total}'
+    lore_window:  '<gray>Флагов в окне: <yellow>{window}'
+    lore_status:  '<gray>Статус: {stage}'
+    lore_click:   '<dark_gray>Нажмите для просмотра подробного профиля'
+
+    # ── Метки состояния ───────────────────────────────────────────────────────
+    # Вставляется как {stage} в lore_status выше.
+    stage_watching:  '<aqua>👁 НАБЛЮДЕНИЕ'
+    stage_testing:   '<yellow>⚠ ПРОВЕРКА'
+    stage_blocking:  '<red>⛔ БЛОКИРОВКА'
+
+    # ── Вывод профиля в чат ───────────────────────────────────────────────────
+    # Отображается в чате, когда игрок нажимает на голову в GUI.
+
+    # Разделительная строка между секциями.
+    divider: '<dark_gray>──────────────────────────────────────────────'
+
+    # Строка заголовка. Плейсхолдер: {player}
+    profile_header:  '<gold>  Профиль AntiElytraTarget: <yellow>{player}'
+
+    # Строка UUID. Плейсхолдер: {uuid}
+    profile_uuid:    '<gray>  UUID: <white>{uuid}'
+
+    # Строка общего числа flags. Плейсхолдер: {total}
+    profile_total:   '<gray>  Всего флагов: <red>{total}'
+
+    # Заголовок разбивки по проверкам.
+    profile_breakdown_header: '<aqua>  Распределение флагов:'
+
+    # Строка разбивки по проверкам. Плейсхолдеры: {check} {count}
+    profile_breakdown_line: '<dark_gray>    • <yellow>{check}<gray>: <red>{count}'
+
+    # Заголовок последних записей (показывает последние 10 flags).
+    profile_recent_header: '<aqua>  Последние 10 записей (сначала новые):'
+
+    # Каждая строка последней записи. Плейсхолдеры: {index} {entry}
+    profile_recent_line: '<dark_gray>  [{index}] {entry}'
+
+    # Подсказка внизу. Плейсхолдер: {player}
+    profile_footer: '<gray>  Для полной истории используйте <yellow>/aet profile {player} [страница]<gray>.'
+
+    # Отображается, если для выбранного игрока нет постоянного профиля.
+    # Плейсхолдер: {player}
+    no_profile: '<yellow>Сохранённая история флагов игрока <white>{player}<yellow> отсутствует. Текущие данные доступны в /aet status.'

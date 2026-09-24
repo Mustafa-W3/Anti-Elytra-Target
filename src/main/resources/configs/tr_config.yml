@@ -1,0 +1,501 @@
+# ╔═══════════════════════════════════════════════════════════════════════╗
+# ║  AntiElytraTarget v5.3.1.3 — Yapılandırma                           ║
+# ║                                                                       ║
+# ║  RENK FORMATLARI (üçü aynı metinde birlikte kullanılabilir):          ║
+# ║    MiniMessage : <red>, <gradient:red:gold>, <bold>, <italic>         ║
+# ║  <hover:show_text:'ipucu'>, <click:run_command:...>                   ║
+# ║  Hex renkler : &#FF5555  veya  <#FF5555>  veya  <color:#FF5555>       ║
+# ║  Eski kodlar: &a, &c, &e, &7, &f, &l, &o …                            ║
+# ╚═══════════════════════════════════════════════════════════════════════╝
+
+# ── Genel (Türkçe dil yapılandırması) ─────────────────────────────────────
+general:
+  enabled: true
+  prefix: "<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset>"
+  # Açıldığında flags.log, her flag için genişletilmiş çalışma zamanı ayrıntılarını içerir.
+  debugmod: true
+
+performance:
+  # 1 dakikalık TPS bu değerin altına düşerse tespit/tekrar gibi ağır işler otomatik duraklatılır.
+  # Koruyucuyu kapatmak için 0 yapın.
+  disable_below_tps: 16.0
+
+# ── Tespit (genel anahtar) ────────────────────────────────────────────────
+detection:
+  enabled: true
+  # FIREWORK_ROCKET öğesini ikinci ele koyma girişimlerini iptal eder.
+  block_offhand_firework: true
+  # Ana elde FIREWORK_ROCKET varken başka oyunculara vurmayı engeller.
+  block_mainhand_firework_attacks: false
+
+compatibility:
+  # Sunucuya Floodgate/Geyser Bedrock oyuncuları bağlanıyorsa açın.
+  bedrock_support: false
+  # Oyuncu adı bu değerle başlıyorsa Bedrock kabul edilir.
+  bedrock_name_prefix: "."
+  # Sentetik ping/transaction paketleri paket sırası kontrollerini çalıştırır.
+  # Anti-cheat uyumluluğu için düşük hızda ve pozitif ID'lerle gönderilir.
+  synthetic_transactions: true
+  synthetic_transaction_interval_ticks: 5
+
+# ╔═══════════════════════════════════════════════════════════════════════╗
+# ║  KONTROLLER — Her kontrolde şunlar vardır:                            ║
+# ║  enabled     : aç/kapat                                               ║
+# ║  decay       : flag üretmeyen her tickte VL azaltımı                  ║
+# ║  + kontrole özel eşikler                                              ║
+# ╚═══════════════════════════════════════════════════════════════════════╝
+
+checks:
+  # ── SAVAŞ KONTROLLERİ ─────────────────────────────────────────────────────
+  AngleDeviation:
+    enabled: true
+    decay: 0.1
+    sample_size: 25
+    zfactor_vl_limit: 7.0
+
+  AimSnap:
+    enabled: true
+    decay: 0.15
+    spike_vl_limit: 7.0
+    randomizer_vl_limit: 2.5
+
+  AttackRate:
+    enabled: true
+    decay: 0.2
+    max_hits_per_second: 12
+
+  TimingConsistency:
+    enabled: true
+    decay: 0.1
+    max_std_dev_ms: 50.0
+    sample_size: 6
+
+  ElytraCombatRate:
+    enabled: true
+    decay: 0.15
+    max_rot_per_tick: 40.0
+    speed_threshold: 0.5
+
+  # ── NİŞAN KONTROLLERİ ─────────────────────────────────────────────────────
+  SmoothAim:
+    enabled: true
+    decay: 0.1
+    max_std_dev: 1.5
+    sample_size: 30
+
+  GCD:
+    enabled: true
+    decay: 0.05
+
+  LookVectorLock:
+    enabled: true
+    decay: 0.1
+    sample_size: 12
+    max_variance: 2.0
+
+  PitchLock:
+    enabled: true
+    decay: 0.1
+    sample_size: 15
+    max_variance: 4.0
+
+  RotationConsistency:
+    enabled: true
+    decay: 0.1
+    sample_size: 10
+    max_std_dev: 1.0
+
+
+  AimComplex:
+    enabled: true
+    decay: 0.05
+    entropy_vl_limit: 30
+    distinct_vl_limit: 4.0
+    randomizer_vl_limit: 2.5
+
+  AimHeuristic:
+    enabled: true
+    decay: 0.03
+    basic_vl_limit: 400
+    basic_l2_vl_limit: 400
+    pattern_buffer_limit: 2.5
+    factor_buffer_limit: 3.0
+
+  # ── ELYTRA KONTROLLERİ ────────────────────────────────────────────────────
+  VelocityAlign:
+    enabled: true
+    decay: 0.1
+    match_threshold: 8.0
+    consecutive_matches: 12
+    max_velocity_magnitude: 1.8
+
+  StrafeSync:
+    enabled: false
+    decay: 0.05
+    max_deviation: 0.15
+    sample_size: 20
+    approach_rate_skip: 0.3
+
+  AccelerationLock:
+    enabled: true
+    decay: 0.05
+    max_std_dev: 0.02
+    sample_size: 30
+    max_target_age_ms: 2500
+
+  ElytraPhysics:
+    enabled: true
+    decay: 0.05
+
+  # ── DİĞER KONTROLLER ──────────────────────────────────────────────────────
+  FireworkPattern:
+    enabled: true
+    decay: 0.05
+    sample_size: 8
+    max_interval_std_dev: 100.0
+
+  OffhandFireworkSwitch:
+    enabled: true
+    decay: 0.1
+
+  # DENEYSEL
+  IncapableSwap:
+    enabled: true
+    decay: 0.08
+    max_tick_span: 1
+    max_sequence_ms: 175
+    evidence_window_ms: 8000
+    evidence_threshold: 3.0
+
+  HeadPitchDivergence:
+    enabled: true
+    decay: 0.1
+    min_y_delta_blocks: 2.0
+    max_pitch_delta_deg: 1.5
+
+  UseItemRotationMismatch:
+    enabled: true
+    decay: 0.05
+    allow_previous_rotation: true
+    require_gliding: true
+    require_firework: true
+    min_interval_ms: 0
+
+  PacketOrderE:
+    enabled: true
+    decay: 0.05
+
+  RotationPrediction:
+    enabled: true
+    decay: 0.1
+    min_target_distance: 0.75
+    max_target_distance: 10.0
+    target_lock_min_center_distance: 0.35
+    orbit_max_target_distance: 8.5
+    min_previous_error: 18.0
+    max_landing_error: 0.20
+    max_hit_error: 0.50
+    min_geodesic_rotation: 12.0
+    max_geodesic_rotation: 160.0
+    min_convergence_ratio: 0.985
+    max_correction_residual: 0.35
+    rapid_hit_min_yaw: 75.0
+    min_sample_gap_ms: 25
+    max_sample_gap_ms: 100
+    max_candidate_age_ms: 125
+    rapid_hit_window_ms: 250
+    orbit_detection_enabled: true
+    validation_samples: 5
+    evidence_hit_window: 16
+    required_confirmed_candidates: 3
+    rapid_hit_required: 3
+    evidence_window_ms: 6000
+    alert_cooldown_ms: 5000
+
+
+# ── Ceza ──────────────────────────────────────────────────────────────────
+penalty:
+  test_mode_threshold: 2
+  block_mode_threshold: 5
+  test_mode_block_ratio: 0.5
+  kick_enabled: true
+  kick_threshold: 20
+  kick_message: '<red>Atıldınız: ElytraTarget hilesi tespit edildi.'
+  kick_command_enabled: false
+  kick_command: "kick {player} ElytraTarget detected"
+  ban_enabled: false
+  ban_threshold: 60
+  ban_message: '<red>Yasaklandınız: ElytraTarget hilesi.'
+  ban_duration_minutes: 1440
+  ban_command_enabled: false
+  ban_command: "tempban {player} 1d ElytraTarget detected"
+
+# ── Kayıt ─────────────────────────────────────────────────────────────────
+logging:
+  file_logging: true
+  log_file_path: "logs/flags.log"
+  console_logging: true
+  op_alerts_default: true
+  log_location: true
+  log_victim_info: true
+  max_profile_entries: 200
+
+# ── Muafiyetler ───────────────────────────────────────────────────────────
+exemptions:
+  max_ping: 100
+  exempt_creative: true
+  exempt_spectator: true
+  bypass_permission: "antielytratarget.bypass"
+
+# ── Tekrar Sistemi ────────────────────────────────────────────────────────
+# Oyuncular flag eşiğine ulaştığında hareketlerini kaydeder.
+# Tekrarlar /aet replay ile GUI menüsünden izlenebilir.
+# Harici NPC eklentisi gerekmez — ham NMS paketleri kullanılır.
+replay:
+  # Tekrar sistemini aç/kapat. Varsayılan: false.
+  enabled: false
+
+  # Kayıt her zaman ikinci loglanan flagde başlar; ön kayıt tamponu tutulmaz.
+
+  # Her tekrar kaydının kaç saniye süreceği.
+  duration_seconds: 45
+
+  # Flaglenen oyuncunun çevresindeki canlı varlıklar her tekrar karesine kaydedilir.
+  entity_radius: 18.0
+  max_actors_per_frame: 24
+  max_effects_per_frame: 128
+
+  # Yakın zamanda vurulan hedefleri kısa süreliğine yarıçap dışına çıksalar bile kayıtta tutar.
+  target_keep_seconds: 8
+
+  # Diskte tutulacak en fazla tekrar dosyası sayısı.
+  # En eski tekrarlar otomatik silinmez; elle veya GUI üzerinden yönetin.
+  max_files: 100
+  isolation_radius: 96.0
+
+# ── Bildirimler ───────────────────────────────────────────────────────────
+# Sohbette gösterilen uyarı mesajı. Ayrıntılar için üzerine gelin.
+# Yer tutucular: {player} {check} {flags} {window} {location}
+notifications:
+  alert_message: '<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset><yellow>{player} <dark_gray>| <red>{check} <dark_gray>| <gray>{flags}x <dark_gray>| <gray>{location}'
+
+  # Tüm uyarı satırına uygulanacak tıklama eylemi.
+  # alert_click_action: run_command, suggest_command, open_url, copy_to_clipboard
+  # Yer tutucular: alert_message ve alert_hover ile aynı.
+  alert_click_enabled: true
+  alert_click_action: run_command
+  alert_click_command: "/aet tpa {player}"
+
+  # Uyarı satırının üzerine gelindiğinde gösterilen ipucu.
+  # Yeni satırlar için \n kullanın. MiniMessage, hex ve eski renk kodlarını destekler.
+  # Yer tutucular: {player} {ping} {gamemode} {world} {x} {y} {z}
+  #               {check} {flags} {window} {victim}
+  alert_hover: '<gray>Kullanıcı adı: <white>{player}\n<gray>Ping: <green>{ping}ms\n<gray>Oyun modu: <aqua>{gamemode}\n<gray>Konum: <white>{world} <yellow>{x}<gray>, <yellow>{y}<gray>, <yellow>{z}\n<gray>Kontrol: <red>{check}\n<gray>Toplam İhlal: <red>{flags}\n<gray>Pencere İhlali: <yellow>{window}\n<gray>Mağdur: <white>{victim}\n\n<green>{player} adlı oyuncuya ışınlanmak için tıkla'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MESAJLAR — Tüm oyun içi mesaj metinleri buradan düzenlenebilir.
+#
+# Üç renk formatını da destekler:
+#   MiniMessage : <red>, <green>, <yellow>, <gray>, <white>, <gold>, <aqua>
+#                 <bold>, <italic>, <gradient:red:gold>, <rainbow>, etc.
+#   Hex colors  : &#FF5555  or  <#FF5555>  or  <color:#FF5555>
+#   Legacy codes: &a=green  &c=red  &e=yellow  &7=gray  &f=white  etc.
+#
+# Desteklenen yer tutucular her grubun üstündeki yorumlarda belirtilir.
+# ══════════════════════════════════════════════════════════════════════════════
+messages:
+
+  # ── Genel ─────────────────────────────────────────────────────────────────
+  no_permission:       '<red>Bu komutu kullanma izniniz yok.'
+  in_game_only:        '<red>Bu komut yalnızca oyun içinde kullanılabilir.'
+  # Yer tutucu: {label}
+  unknown_subcommand:  '<red>Bilinmeyen alt komut. /{label} help kullanın.'
+  invalid_page:        '<red>Geçersiz sayfa numarası.'
+  # Yer tutucu: {max}
+  page_out_of_range:   '<red>Sayfa aralık dışında. Geçerli aralık: 1-{max}'
+
+  # ── /aet log ────────────────────────────────────────────────────────
+  log_enabled:         '<green>İhlal bildirimleri <white>ETKİN<green>.'
+  log_enabled_sub:     '<gray>Her ihlal için oyun içi bildirim alacaksınız.'
+  log_disabled:        '<red>İhlal bildirimleri <white>DEVRE DIŞI<red>.'
+  log_disabled_sub:    '<gray>İhlaller dosyaya ve konsola gönderilmeye devam edecek.'
+
+  # ── /aet reload ─────────────────────────────────────────────────────
+  # Yer tutucu: {ms}
+  reloaded:            '<green>Yapılandırma {ms} ms içinde yeniden yüklendi.'
+
+  # ── /aet clear ──────────────────────────────────────────────────────
+  # Yer tutucular: {player} {label}
+  clear_usage:         '<red>Kullanım: /{label} clear <oyuncu>'
+  clear_no_profile:    '<red>Profil bulunamadı: {player}'
+  clear_success:       '<yellow>{player}<green> için tüm ihlal verileri temizlendi (profil + sayaçlar).'
+
+  # ── /aet profile ────────────────────────────────────────────────────
+  # Yer tutucular: {player} {label}
+  profile_usage:       '<red>Kullanım: /{label} profile <oyuncu> [sayfa]'
+  profile_not_found:   '<white>{player}<yellow> için ihlal geçmişi bulunamadı.'
+
+  # ── /aet status ─────────────────────────────────────────────────────
+  tps_not_available:   '<yellow>Yok (Paper değil)'
+
+  # ── /aet help ───────────────────────────────────────────────────────
+  # Yer tutucu: {label}
+  help_header:         '<gold>  AntiElytraTarget <white>v5.3.1.3 Komutları  <dark_gray>(kısaltma: /aet)'
+  help_log:            '<yellow>  /{label} log                    <gray>Oyun içi ihlal bildirimlerini aç/kapat'
+  help_suspect:        '<yellow>  /{label} suspect                <gray>Şüpheli sıralaması menüsünü aç'
+  help_profile:        '<yellow>  /{label} profile <oyuncu>       <gray>Sayfalı ihlal geçmişini görüntüle'
+  help_profile_page:   '<yellow>  /{label} profile <oyuncu> <s>   <gray>Sayfalar arasında gezin'
+  help_clear:          '<yellow>  /{label} clear <oyuncu>         <gray>Profil ve çalışma zamanı sayaçlarını temizle'
+  help_status:         '<yellow>  /{label} status                 <gray>Eklenti durumunu ve canlı istatistikleri göster'
+  help_reload:         '<yellow>  /{label} reload                 <gray>Etkin dil yapılandırmasını yeniden yükle'
+  help_replay:         '<yellow>  /{label} replay                 <gray>Kayıtlı tekrar menüsünü aç'
+  help_language:       '<yellow>  /{label} language               <gray>Dil seçme menüsünü aç'
+  help_help:           '<yellow>  /{label} help                   <gray>Bu yardım menüsünü göster'
+
+  # ── Tekrar mesajları ──────────────────────────────────────────────────────
+  replay_not_enabled:  '<red>Tekrar sistemi etkin değil.'
+  replay_no_files:     '<yellow>Kayıtlı tekrar bulunamadı.'
+  # Yer tutucu: {player}
+  replay_started:      '<yellow>{player}<green> için kayıt başlatıldı.'
+  # Yer tutucu: {file}
+  replay_saved:        '<green>Tekrar kaydedildi: <yellow>{file}'
+  replay_stop:         '<yellow>Tekrar oynatımı durduruldu.'
+
+  # ── Kick / ban bildirimleri ───────────────────────────────────────────────
+  # Yer tutucular: {player} {flags}
+  notify_kick:         '<red>ATMA <dark_gray>| <yellow>{player} <gray>— ElytraTarget (ihlaller: <red>{flags}<gray>)'
+  notify_ban:          '<red>YASAKLAMA <dark_gray>| <yellow>{player} <gray>— ElytraTarget (ihlaller: <red>{flags}<gray>)'
+
+  # ── Dil seçici ve kalan çalışma zamanı metinleri ──────────────────────────
+  language_title:      '<gold>Dil Seçin'
+  language_selected:   '<green>Dil <yellow>{language}<green> olarak değiştirildi.'
+  language_active:     '<green>Şu anda etkin'
+  language_click:      '<yellow>Seçmek için tıkla'
+  replay_usage:        '<red>Kullanım: /aet replay'
+  tpa_usage:           '<red>Kullanım: /aet tpa <oyuncu>'
+  player_not_found:    '<yellow>Oyuncu bulunamadı: <white>{player}'
+  teleported:          '<yellow>{player}<green> adlı oyuncuya ışınlandınız.'
+  profile_header_line: '<gold>  AntiElytraTarget <white>Profili: <yellow>{player}'
+  profile_uuid_line:   '<gray>  UUID: <white>{uuid}'
+  profile_total_page_line: '<gray>  Toplam İhlal: <red>{total} <gray>| Sayfa: <white>{page}/{pages}'
+  profile_breakdown:   '<aqua>  İhlal Dağılımı:'
+  profile_breakdown_item: '<dark_gray>    - <yellow>{check}<gray>: <red>{count}'
+  profile_recent:      '<aqua>  Son Kayıtlar (en yeniden eskiye):'
+  profile_entry:       '<dark_gray>  [{index}] {entry}'
+  profile_navigate:    '<gray>  Gezinmek için /aet profile {player} <sayfa> kullanın.'
+  status_header:       '<gold>  AntiElytraTarget <white>v{version} Durumu'
+  status_plugin:       '<gray>  Eklenti: <reset>{value}'
+  status_detection:    '<gray>  Tespit: <reset>{value}'
+  status_offhand:      '<gray>  İkinci El Havai Fişek: <reset>{value}'
+  status_mainhand_attack: '<gray>  Ana Elde Fişekle Saldırı: <reset>{value}'
+  status_debug:        '<gray>  Hata Ayıklama Modu: <reset>{value}'
+  status_replay:       '<gray>  Tekrar: <reset>{value}'
+  status_hits:         '<gray>  İşlenen vuruşlar: <reset>{value}'
+  status_flags:        '<gray>  Oluşturulan ihlaller: <reset>{value}'
+  status_tracked:      '<gray>  İzlenen oyuncular: <reset>{value}'
+  status_online:       '<gray>  Çevrim içi oyuncular: <reset>{value}'
+  status_tps:          '<gray>  TPS (1/5/15 dk): <reset>{value}'
+  status_tps_short:    '<gray>  TPS: <reset>{value}'
+  yes:                 '<green>EVET'
+  no:                  '<red>HAYIR'
+  replay_no_files_player: '<white>{player}<yellow> için kayıtlı tekrar bulunamadı.'
+  replay_gui_title:    'Tekrarlar'
+  replay_gui_title_player: 'Tekrarlar: {player}'
+  replay_previous:     '<yellow>← Önceki Sayfa'
+  replay_next:         '<yellow>Sonraki Sayfa →'
+  replay_go_page:      '<gray>{page}. sayfaya gitmek için tıkla'
+  replay_system:       '<gold>Tekrar Sistemi'
+  replay_total:        '<gray>Toplam tekrar: <white>{total}'
+  replay_page:         '<gray>Sayfa: <white>{page}/{pages}'
+  replay_player:       '<gray>Oyuncu: <yellow>{player}'
+  replay_left_watch:   '<dark_gray>İzlemek için bir tekrara sol tıkla'
+  replay_right_delete: '<dark_gray>Silmek için sağ tıkla'
+  replay_close:        '<red>Kapat'
+  replay_close_lore:   '<gray>Bu menüyü kapat'
+  replay_date:         '<gray>Tarih: <white>{date}'
+  replay_duration:     '<gray>Süre: <white>{seconds} sn'
+  replay_frames:       '<gray>Kareler: <white>{frames}'
+  replay_left_watch_short: '<green>İzlemek için sol tıkla'
+  replay_right_delete_short: '<red>Silmek için sağ tıkla'
+  replay_corrupt:      '<red>Bozuk Tekrar'
+  replay_file:         '<gray>Dosya: <white>{file}'
+  replay_could_not_load: '<red>Bu tekrar yüklenemedi'
+  replay_deleted:      '<green>Tekrar silindi: <yellow>{file}'
+  replay_delete_failed: '<red>Tekrar silinemedi.'
+  replay_load_failed:  '<red>Tekrar yüklenemedi.'
+  replay_adapter_unavailable: '<red>Tekrar NPC bağdaştırıcısı bu sunucu sürümünde kullanılamıyor.'
+  replay_no_frames:    '<red>Bu tekrarda kayıtlı kare yok.'
+  replay_world_not_found: "<red>'{world}' dünyası bulunamadı."
+  replay_npc_spawn_failed: '<red>Tekrar NPC''si oluşturulamadı. Kesin NMS hatası için konsolu kontrol edin.'
+  replay_playing:      '<yellow>{player}<green> adlı oyuncunun tekrarı oynatılıyor <gray>({frames} kare, {seconds} sn)'
+  replay_hotbar_help:  '<gray>Hızlı çubuk: <yellow>1 -3 sn <gray>| <yellow>4 -0.1x <gray>| <red>5 durdur <gray>| <green>6 +0.1x <gray>| <green>9 +3 sn'
+  replay_stopped_npc:  '<red>NPC oluşturulamadığı için tekrar durduruldu.'
+  replay_finished:     '<green>Tekrar tamamlandı.'
+  replay_flag:         '<red>Tekrar ihlali <dark_gray>| <yellow>{check} <gray>(toplam ihlal: <red>{flags}<gray>)'
+  replay_stop_item:    '<red>Tekrarı Durdur'
+  replay_progress:     '<dark_gray>[<yellow>Tekrar<dark_gray>] <gray>{current} sn / {duration} sn <dark_gray>(<white>%{percent}<dark_gray>) <gray>Hız: <white>{speed}'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# GUI — Şüpheli sıralaması  (/aet suspect)
+#
+# Üç renk formatını da destekler (MiniMessage, Hex, eski & kodları).
+# Yer tutucular her anahtarın üstündeki yorumlarda belirtilir.
+# ══════════════════════════════════════════════════════════════════════════════
+gui:
+  suspect:
+
+    # GUI penceresinin üstünde gösterilen envanter başlığı.
+    title: '<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset><yellow>En Şüpheliler'
+
+    # Envanter slot sayısı (9'un katı olmalı, en fazla 54).
+    size: 54
+
+    # ── Oyuncu kafası öğesi ───────────────────────────────────────────────────
+    # Her oyuncu kafasının görünen adı. Yer tutucu: {player}
+    head_name: '<gold>{player}'
+
+    # Üzerine gelince gösterilen lore. Yer tutucular: {total} {window} {stage}
+    lore_total:   '<gray>Toplam İhlal  : <red>{total}'
+    lore_window:  '<gray>Pencere İhlali: <yellow>{window}'
+    lore_status:  '<gray>Durum          : {stage}'
+    lore_click:   '<dark_gray>Ayrıntılı profil için tıkla'
+
+    # ── Aşama etiketleri ──────────────────────────────────────────────────────
+    # Yukarıdaki lore_status içine {stage} olarak eklenir.
+    stage_watching:  '<aqua>👁 İZLENİYOR'
+    stage_testing:   '<yellow>⚠ TEST EDİLİYOR'
+    stage_blocking:  '<red>⛔ ENGELLENİYOR'
+
+    # ── Profil sohbet çıktısı ─────────────────────────────────────────────────
+    # GUI'de bir oyuncu kafasına tıklanınca sohbette gösterilir.
+
+    # Bölümler arasındaki ayırıcı satır.
+    divider: '<dark_gray>──────────────────────────────────────────────'
+
+    # Başlık satırı. Yer tutucu: {player}
+    profile_header:  '<gold>  AntiElytraTarget <white>Profili: <yellow>{player}'
+
+    # UUID satırı. Yer tutucu: {uuid}
+    profile_uuid:    '<gray>  UUID: <white>{uuid}'
+
+    # Toplam flag satırı. Yer tutucu: {total}
+    profile_total:   '<gray>  Toplam İhlal: <red>{total}'
+
+    # Kontrol bazlı döküm başlığı.
+    profile_breakdown_header: '<aqua>  İhlal Dağılımı:'
+
+    # Kontrol bazlı döküm satırı. Yer tutucular: {check} {count}
+    profile_breakdown_line: '<dark_gray>    • <yellow>{check}<gray>: <red>{count}'
+
+    # Son kayıtlar başlığı (son 10 flagi gösterir).
+    profile_recent_header: '<aqua>  Son 10 kayıt (en yeniden eskiye):'
+
+    # Her son kayıt satırı. Yer tutucular: {index} {entry}
+    profile_recent_line: '<dark_gray>  [{index}] {entry}'
+
+    # Alt bilgi ipucu. Yer tutucu: {player}
+    profile_footer: '<gray>  Tam sayfalı geçmiş için <yellow>/aet profile {player} [sayfa]<gray> kullanın.'
+
+    # Tıklanan oyuncu için kalıcı profil yoksa gösterilir.
+    # Yer tutucu: {player}
+    no_profile: '<white>{player}<yellow> için kalıcı ihlal geçmişi yok. Canlı veriler için /aet status komutunu kullanın.'

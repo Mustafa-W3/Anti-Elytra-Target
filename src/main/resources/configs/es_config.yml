@@ -1,0 +1,501 @@
+# ╔═══════════════════════════════════════════════════════════════════════╗
+# ║  AntiElytraTarget v5.3.1.3 — Configuración                          ║
+# ║                                                                       ║
+# ║  FORMATOS DE COLOR (los tres pueden mezclarse en la misma cadena):    ║
+# ║    MiniMessage : <red>, <gradient:red:gold>, <bold>, <italic>         ║
+# ║  <hover:show_text:'ayuda'>, <click:run_command:...>                   ║
+# ║  Colores hex : &#FF5555  o  <#FF5555>  o  <color:#FF5555>             ║
+# ║  Códigos legacy: &a, &c, &e, &7, &f, &l, &o …                         ║
+# ╚═══════════════════════════════════════════════════════════════════════╝
+
+# ── General (configuración en español) ────────────────────────────────────
+general:
+  enabled: true
+  prefix: "<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset>"
+  # Al activarlo, flags.log incluye detalles de ejecución ampliados para cada alerta.
+  debugmod: true
+
+performance:
+  # Si el TPS de 1 minuto cae por debajo de este valor, las tareas pesadas de detección/repetición se pausan automáticamente.
+  # Ponlo en 0 para desactivar esta protección.
+  disable_below_tps: 16.0
+
+# ── Detección (interruptor global) ────────────────────────────────────────
+detection:
+  enabled: true
+  # Cancela los intentos de poner FIREWORK_ROCKET en la mano secundaria.
+  block_offhand_firework: true
+  # Impide atacar a jugadores mientras se sostiene FIREWORK_ROCKET en la mano principal.
+  block_mainhand_firework_attacks: false
+
+compatibility:
+  # Actívalo solo si jugadores Bedrock de Floodgate/Geyser usan el servidor.
+  bedrock_support: false
+  # Los nombres que empiecen por este valor se consideran Bedrock.
+  bedrock_name_prefix: "."
+  # Los paquetes sintéticos de ping/transacción alimentan las comprobaciones de orden de paquetes.
+  # Se envían a baja frecuencia con IDs positivos para compatibilidad con anti-cheats.
+  synthetic_transactions: true
+  synthetic_transaction_interval_ticks: 5
+
+# ╔═══════════════════════════════════════════════════════════════════════╗
+# ║  COMPROBACIONES — Cada comprobación tiene:                            ║
+# ║  enabled     : activar/desactivar                                     ║
+# ║  decay       : reducción de VL por tick sin flag                      ║
+# ║  + umbrales específicos de la comprobación                            ║
+# ╚═══════════════════════════════════════════════════════════════════════╝
+
+checks:
+  # ── COMPROBACIONES DE COMBATE ─────────────────────────────────────────────
+  AngleDeviation:
+    enabled: true
+    decay: 0.1
+    sample_size: 25
+    zfactor_vl_limit: 7.0
+
+  AimSnap:
+    enabled: true
+    decay: 0.15
+    spike_vl_limit: 7.0
+    randomizer_vl_limit: 2.5
+
+  AttackRate:
+    enabled: true
+    decay: 0.2
+    max_hits_per_second: 12
+
+  TimingConsistency:
+    enabled: true
+    decay: 0.1
+    max_std_dev_ms: 50.0
+    sample_size: 6
+
+  ElytraCombatRate:
+    enabled: true
+    decay: 0.15
+    max_rot_per_tick: 40.0
+    speed_threshold: 0.5
+
+  # ── COMPROBACIONES DE APUNTADO ────────────────────────────────────────────
+  SmoothAim:
+    enabled: true
+    decay: 0.1
+    max_std_dev: 1.5
+    sample_size: 30
+
+  GCD:
+    enabled: true
+    decay: 0.05
+
+  LookVectorLock:
+    enabled: true
+    decay: 0.1
+    sample_size: 12
+    max_variance: 2.0
+
+  PitchLock:
+    enabled: true
+    decay: 0.1
+    sample_size: 15
+    max_variance: 4.0
+
+  RotationConsistency:
+    enabled: true
+    decay: 0.1
+    sample_size: 10
+    max_std_dev: 1.0
+
+
+  AimComplex:
+    enabled: true
+    decay: 0.05
+    entropy_vl_limit: 30
+    distinct_vl_limit: 4.0
+    randomizer_vl_limit: 2.5
+
+  AimHeuristic:
+    enabled: true
+    decay: 0.03
+    basic_vl_limit: 400
+    basic_l2_vl_limit: 400
+    pattern_buffer_limit: 2.5
+    factor_buffer_limit: 3.0
+
+  # ── COMPROBACIONES DE ELYTRA ──────────────────────────────────────────────
+  VelocityAlign:
+    enabled: true
+    decay: 0.1
+    match_threshold: 8.0
+    consecutive_matches: 12
+    max_velocity_magnitude: 1.8
+
+  StrafeSync:
+    enabled: false
+    decay: 0.05
+    max_deviation: 0.15
+    sample_size: 20
+    approach_rate_skip: 0.3
+
+  AccelerationLock:
+    enabled: true
+    decay: 0.05
+    max_std_dev: 0.02
+    sample_size: 30
+    max_target_age_ms: 2500
+
+  ElytraPhysics:
+    enabled: true
+    decay: 0.05
+
+  # ── COMPROBACIONES VARIAS ─────────────────────────────────────────────────
+  FireworkPattern:
+    enabled: true
+    decay: 0.05
+    sample_size: 8
+    max_interval_std_dev: 100.0
+
+  OffhandFireworkSwitch:
+    enabled: true
+    decay: 0.1
+
+  # EXPERIMENTAL
+  IncapableSwap:
+    enabled: true
+    decay: 0.08
+    max_tick_span: 1
+    max_sequence_ms: 175
+    evidence_window_ms: 8000
+    evidence_threshold: 3.0
+
+  HeadPitchDivergence:
+    enabled: true
+    decay: 0.1
+    min_y_delta_blocks: 2.0
+    max_pitch_delta_deg: 1.5
+
+  UseItemRotationMismatch:
+    enabled: true
+    decay: 0.05
+    allow_previous_rotation: true
+    require_gliding: true
+    require_firework: true
+    min_interval_ms: 0
+
+  PacketOrderE:
+    enabled: true
+    decay: 0.05
+
+  RotationPrediction:
+    enabled: true
+    decay: 0.1
+    min_target_distance: 0.75
+    max_target_distance: 10.0
+    target_lock_min_center_distance: 0.35
+    orbit_max_target_distance: 8.5
+    min_previous_error: 18.0
+    max_landing_error: 0.20
+    max_hit_error: 0.50
+    min_geodesic_rotation: 12.0
+    max_geodesic_rotation: 160.0
+    min_convergence_ratio: 0.985
+    max_correction_residual: 0.35
+    rapid_hit_min_yaw: 75.0
+    min_sample_gap_ms: 25
+    max_sample_gap_ms: 100
+    max_candidate_age_ms: 125
+    rapid_hit_window_ms: 250
+    orbit_detection_enabled: true
+    validation_samples: 5
+    evidence_hit_window: 16
+    required_confirmed_candidates: 3
+    rapid_hit_required: 3
+    evidence_window_ms: 6000
+    alert_cooldown_ms: 5000
+
+
+# ── Penalización ──────────────────────────────────────────────────────────
+penalty:
+  test_mode_threshold: 2
+  block_mode_threshold: 5
+  test_mode_block_ratio: 0.5
+  kick_enabled: true
+  kick_threshold: 20
+  kick_message: '<red>Expulsado: se detectó el hack ElytraTarget.'
+  kick_command_enabled: false
+  kick_command: "kick {player} ElytraTarget detected"
+  ban_enabled: false
+  ban_threshold: 60
+  ban_message: '<red>Bloqueado: uso del hack ElytraTarget.'
+  ban_duration_minutes: 1440
+  ban_command_enabled: false
+  ban_command: "tempban {player} 1d ElytraTarget detected"
+
+# ── Registro ──────────────────────────────────────────────────────────────
+logging:
+  file_logging: true
+  log_file_path: "logs/flags.log"
+  console_logging: true
+  op_alerts_default: true
+  log_location: true
+  log_victim_info: true
+  max_profile_entries: 200
+
+# ── Exenciones ────────────────────────────────────────────────────────────
+exemptions:
+  max_ping: 100
+  exempt_creative: true
+  exempt_spectator: true
+  bypass_permission: "antielytratarget.bypass"
+
+# ── Sistema de repeticiones ───────────────────────────────────────────────
+# Registra las acciones del jugador cuando alcanza el umbral de flags.
+# Las repeticiones se pueden ver con /aet replay desde el menú GUI.
+# No requiere plugins NPC externos — usa paquetes NMS directos.
+replay:
+  # Activa/desactiva el sistema de repeticiones. Predeterminado: false.
+  enabled: false
+
+  # La grabación siempre empieza en el segundo flag registrado, sin búfer previo.
+
+  # Duración en segundos de cada grabación de repetición.
+  duration_seconds: 45
+
+  # Las entidades vivas alrededor del jugador marcado se guardan en cada fotograma de repetición.
+  entity_radius: 18.0
+  max_actors_per_frame: 24
+  max_effects_per_frame: 128
+
+  # Mantiene en la grabación los objetivos golpeados recientemente aunque salgan brevemente del radio.
+  target_keep_seconds: 8
+
+  # Número máximo de archivos de repetición que se conservarán en disco.
+  # Las repeticiones más antiguas no se borran automáticamente; gestiónalas manualmente o desde la GUI.
+  max_files: 100
+  isolation_radius: 96.0
+
+# ── Notificaciones ────────────────────────────────────────────────────────
+# Mensaje de alerta mostrado en el chat. Pasa el cursor para ver detalles.
+# Marcadores: {player} {check} {flags} {window} {location}
+notifications:
+  alert_message: "<gray>&l[&x&F&F&0&0&0&0&lA&x&F&9&0&B&0&B&lE&x&F&3&1&5&1&5&lT<gray>&l] <reset><yellow>{player} <dark_gray>| <red>{check} <dark_gray>| <gray>{flags}x <dark_gray>| <gray>{location}"
+
+  # Acción de clic aplicada a toda la línea de alerta.
+  # alert_click_action: run_command, suggest_command, open_url, copy_to_clipboard
+  # Marcadores: los mismos que alert_message y alert_hover.
+  alert_click_enabled: true
+  alert_click_action: run_command
+  alert_click_command: "/aet tpa {player}"
+
+  # Tooltip mostrado al pasar el cursor sobre la línea de alerta.
+  # Usa \n para nuevas líneas. Soporta MiniMessage, hex y colores legacy.
+  # Marcadores: {player} {ping} {gamemode} {world} {x} {y} {z}
+  #               {check} {flags} {window} {victim}
+  alert_hover: '<gray>Usuario: <white>{player}\n<gray>Ping: <green>{ping}ms\n<gray>Modo de juego: <aqua>{gamemode}\n<gray>Posición: <white>{world} <yellow>{x}<gray>, <yellow>{y}<gray>, <yellow>{z}\n<gray>Comprobación: <red>{check}\n<gray>Alertas totales: <red>{flags}\n<gray>Alertas de ventana: <yellow>{window}\n<gray>Víctima: <white>{victim}\n\n<green>Haz clic para teletransportarte a <yellow>{player}'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MENSAJES — Todos los textos de mensajes del juego se editan aquí.
+#
+# Soporta los tres formatos de color:
+#   MiniMessage : <red>, <green>, <yellow>, <gray>, <white>, <gold>, <aqua>
+#                 <bold>, <italic>, <gradient:red:gold>, <rainbow>, etc.
+#   Hex colors  : &#FF5555  or  <#FF5555>  or  <color:#FF5555>
+#   Legacy codes: &a=green  &c=red  &e=yellow  &7=gray  &f=white  etc.
+#
+# Los marcadores compatibles se indican en los comentarios sobre cada grupo.
+# ══════════════════════════════════════════════════════════════════════════════
+messages:
+
+  # ── General ───────────────────────────────────────────────────────────────
+  no_permission:       '<red>No tienes permiso para usar este comando.'
+  in_game_only:        '<red>Este comando solo se puede usar dentro del juego.'
+  # Marcador: {label}
+  unknown_subcommand:  '<red>Subcomando desconocido. Usa /{label} help'
+  invalid_page:        '<red>Número de página no válido.'
+  # Marcador: {max}
+  page_out_of_range:   '<red>Página fuera del intervalo. Valores válidos: 1-{max}'
+
+  # ── /aet log ────────────────────────────────────────────────────────
+  log_enabled:         '<green>Alertas <white>ACTIVADAS<green>.'
+  log_enabled_sub:     '<gray>Recibirás una notificación en el juego por cada alerta.'
+  log_disabled:        '<red>Alertas <white>DESACTIVADAS<red>.'
+  log_disabled_sub:    '<gray>Las alertas seguirán enviándose al archivo y a la consola.'
+
+  # ── /aet reload ─────────────────────────────────────────────────────
+  # Marcador: {ms}
+  reloaded:            '<green>Configuración recargada en {ms} ms.'
+
+  # ── /aet clear ──────────────────────────────────────────────────────
+  # Marcadores: {player} {label}
+  clear_usage:         '<red>Uso: /{label} clear <jugador>'
+  clear_no_profile:    '<red>No se encontró el perfil de: {player}'
+  clear_success:       '<green>Se borraron todos los datos de <yellow>{player}<green> (perfil + contadores).'
+
+  # ── /aet profile ────────────────────────────────────────────────────
+  # Marcadores: {player} {label}
+  profile_usage:       '<red>Uso: /{label} profile <jugador> [página]'
+  profile_not_found:   '<yellow>No se encontró historial de alertas para <white>{player}<yellow>.'
+
+  # ── /aet status ─────────────────────────────────────────────────────
+  tps_not_available:   '<yellow>N/D (no es Paper)'
+
+  # ── /aet help ───────────────────────────────────────────────────────
+  # Marcador: {label}
+  help_header:         '<gold>  Comandos de AntiElytraTarget <white>v5.3.1.3  <dark_gray>(alias: /aet)'
+  help_log:            '<yellow>  /{label} log                    <gray>Activa/desactiva las alertas del juego'
+  help_suspect:        '<yellow>  /{label} suspect                <gray>Abre la clasificación de sospechosos'
+  help_profile:        '<yellow>  /{label} profile <jugador>      <gray>Muestra el historial paginado'
+  help_profile_page:   '<yellow>  /{label} profile <jugador> <p>  <gray>Navega por las páginas'
+  help_clear:          '<yellow>  /{label} clear <jugador>        <gray>Borra el perfil y los contadores'
+  help_status:         '<yellow>  /{label} status                 <gray>Estado del plugin y estadísticas en vivo'
+  help_reload:         '<yellow>  /{label} reload                 <gray>Recarga la configuración del idioma activo'
+  help_replay:         '<yellow>  /{label} replay                 <gray>Abre el menú de repeticiones guardadas'
+  help_language:       '<yellow>  /{label} language               <gray>Abre el selector de idioma'
+  help_help:           '<yellow>  /{label} help                   <gray>Muestra este menú de ayuda'
+
+  # ── Mensajes de repetición ────────────────────────────────────────────────
+  replay_not_enabled:  '<red>El sistema de repeticiones no está activado.'
+  replay_no_files:     '<yellow>No se encontraron repeticiones guardadas.'
+  # Marcador: {player}
+  replay_started:      '<green>Grabación iniciada para <yellow>{player}<green>.'
+  # Marcador: {file}
+  replay_saved:        '<green>Repetición guardada: <yellow>{file}'
+  replay_stop:         '<yellow>Reproducción detenida.'
+
+  # ── Notificaciones de kick / ban ──────────────────────────────────────────
+  # Marcadores: {player} {flags}
+  notify_kick:         '<red>EXPULSIÓN <dark_gray>| <yellow>{player} <gray>— ElytraTarget (alertas: <red>{flags}<gray>)'
+  notify_ban:          '<red>BLOQUEO <dark_gray>| <yellow>{player} <gray>— ElytraTarget (alertas: <red>{flags}<gray>)'
+
+  # ── Selector de idioma y textos restantes en ejecución ────────────────────
+  language_title:      '<gold>Seleccionar idioma'
+  language_selected:   '<green>Idioma cambiado a <yellow>{language}<green>.'
+  language_active:     '<green>Idioma activo'
+  language_click:      '<yellow>Haz clic para seleccionar'
+  replay_usage:        '<red>Uso: /aet replay'
+  tpa_usage:           '<red>Uso: /aet tpa <jugador>'
+  player_not_found:    '<yellow>Jugador no encontrado: <white>{player}'
+  teleported:          '<green>Te has teletransportado a <yellow>{player}<green>.'
+  profile_header_line: '<gold>  Perfil de AntiElytraTarget: <yellow>{player}'
+  profile_uuid_line:   '<gray>  UUID: <white>{uuid}'
+  profile_total_page_line: '<gray>  Alertas totales: <red>{total} <gray>| Página: <white>{page}/{pages}'
+  profile_breakdown:   '<aqua>  Desglose de alertas:'
+  profile_breakdown_item: '<dark_gray>    - <yellow>{check}<gray>: <red>{count}'
+  profile_recent:      '<aqua>  Entradas recientes (más nuevas primero):'
+  profile_entry:       '<dark_gray>  [{index}] {entry}'
+  profile_navigate:    '<gray>  Usa /aet profile {player} <página> para navegar.'
+  status_header:       '<gold>  Estado de AntiElytraTarget <white>v{version}'
+  status_plugin:       '<gray>  Plugin: <reset>{value}'
+  status_detection:    '<gray>  Detección: <reset>{value}'
+  status_offhand:      '<gray>  Cohete en mano secundaria: <reset>{value}'
+  status_mainhand_attack: '<gray>  Ataques con cohete en mano principal: <reset>{value}'
+  status_debug:        '<gray>  Modo de depuración: <reset>{value}'
+  status_replay:       '<gray>  Repeticiones: <reset>{value}'
+  status_hits:         '<gray>  Golpes procesados: <reset>{value}'
+  status_flags:        '<gray>  Alertas generadas: <reset>{value}'
+  status_tracked:      '<gray>  Jugadores supervisados: <reset>{value}'
+  status_online:       '<gray>  Jugadores conectados: <reset>{value}'
+  status_tps:          '<gray>  TPS (1/5/15 min): <reset>{value}'
+  status_tps_short:    '<gray>  TPS: <reset>{value}'
+  yes:                 '<green>SÍ'
+  no:                  '<red>NO'
+  replay_no_files_player: '<yellow>No hay repeticiones guardadas de <white>{player}<yellow>.'
+  replay_gui_title:    'Repeticiones'
+  replay_gui_title_player: 'Repeticiones: {player}'
+  replay_previous:     '<yellow>← Página anterior'
+  replay_next:         '<yellow>Página siguiente →'
+  replay_go_page:      '<gray>Haz clic para ir a la página {page}'
+  replay_system:       '<gold>Sistema de repeticiones'
+  replay_total:        '<gray>Repeticiones totales: <white>{total}'
+  replay_page:         '<gray>Página: <white>{page}/{pages}'
+  replay_player:       '<gray>Jugador: <yellow>{player}'
+  replay_left_watch:   '<dark_gray>Clic izquierdo para ver una repetición'
+  replay_right_delete: '<dark_gray>Clic derecho para eliminar'
+  replay_close:        '<red>Cerrar'
+  replay_close_lore:   '<gray>Cierra este menú'
+  replay_date:         '<gray>Fecha: <white>{date}'
+  replay_duration:     '<gray>Duración: <white>{seconds}s'
+  replay_frames:       '<gray>Fotogramas: <white>{frames}'
+  replay_left_watch_short: '<green>Clic izquierdo para ver'
+  replay_right_delete_short: '<red>Clic derecho para eliminar'
+  replay_corrupt:      '<red>Repetición dañada'
+  replay_file:         '<gray>Archivo: <white>{file}'
+  replay_could_not_load: '<red>No se pudo cargar esta repetición'
+  replay_deleted:      '<green>Repetición eliminada: <yellow>{file}'
+  replay_delete_failed: '<red>No se pudo eliminar la repetición.'
+  replay_load_failed:  '<red>No se pudo cargar la repetición.'
+  replay_adapter_unavailable: '<red>El adaptador de NPC de repeticiones no está disponible en esta versión del servidor.'
+  replay_no_frames:    '<red>Esta repetición no contiene fotogramas grabados.'
+  replay_world_not_found: "<red>No se encontró el mundo '{world}'."
+  replay_npc_spawn_failed: '<red>No se pudo crear el NPC de la repetición. Revisa la consola para ver el error NMS exacto.'
+  replay_playing:      '<green>Reproduciendo la repetición de <yellow>{player} <gray>({frames} fotogramas, {seconds}s)'
+  replay_hotbar_help:  '<gray>Barra rápida: <yellow>1 -3s <gray>| <yellow>4 -0.1x <gray>| <red>5 detener <gray>| <green>6 +0.1x <gray>| <green>9 +3s'
+  replay_stopped_npc:  '<red>La repetición se detuvo porque no se pudo crear el NPC.'
+  replay_finished:     '<green>Repetición finalizada.'
+  replay_flag:         '<red>Alerta de repetición <dark_gray>| <yellow>{check} <gray>(alertas totales: <red>{flags}<gray>)'
+  replay_stop_item:    '<red>Detener repetición'
+  replay_progress:     '<dark_gray>[<yellow>Repetición<dark_gray>] <gray>{current}s / {duration}s <dark_gray>(<white>{percent}%<dark_gray>) <gray>Velocidad: <white>{speed}'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# GUI — Clasificación de sospechosos  (/aet suspect)
+#
+# Soporta los tres formatos de color (MiniMessage, Hex, códigos legacy &).
+# Los marcadores se indican en los comentarios sobre cada clave.
+# ══════════════════════════════════════════════════════════════════════════════
+gui:
+  suspect:
+
+    # Título de inventario mostrado arriba de la ventana GUI.
+    title: '<yellow>Principales sospechosos'
+
+    # Número de slots del inventario (debe ser múltiplo de 9, máx. 54).
+    size: 54
+
+    # ── Ítem de cabeza de jugador ─────────────────────────────────────────────
+    # Nombre visible de cada calavera de jugador. Marcador: {player}
+    head_name: '<gold>{player}'
+
+    # Lore mostrado al pasar el cursor. Marcadores: {total} {window} {stage}
+    lore_total:   '<gray>Alertas totales: <red>{total}'
+    lore_window:  '<gray>Alertas de ventana: <yellow>{window}'
+    lore_status:  '<gray>Estado: {stage}'
+    lore_click:   '<dark_gray>Haz clic para ver el perfil detallado'
+
+    # ── Etiquetas de estado ───────────────────────────────────────────────────
+    # Se inserta como {stage} en lore_status arriba.
+    stage_watching:  '<aqua>👁 EN OBSERVACIÓN'
+    stage_testing:   '<yellow>⚠ EN PRUEBA'
+    stage_blocking:  '<red>⛔ BLOQUEANDO'
+
+    # ── Salida de perfil en el chat ───────────────────────────────────────────
+    # Se muestra en el chat cuando un jugador hace clic en una cabeza en la GUI.
+
+    # Línea separadora entre secciones.
+    divider: '<dark_gray>──────────────────────────────────────────────'
+
+    # Línea de encabezado. Marcador: {player}
+    profile_header:  '<gold>  Perfil de AntiElytraTarget: <yellow>{player}'
+
+    # Línea de UUID. Marcador: {uuid}
+    profile_uuid:    '<gray>  UUID: <white>{uuid}'
+
+    # Línea de flags totales. Marcador: {total}
+    profile_total:   '<gray>  Alertas totales: <red>{total}'
+
+    # Encabezado del desglose por comprobación.
+    profile_breakdown_header: '<aqua>  Desglose de alertas:'
+
+    # Fila del desglose por comprobación. Marcadores: {check} {count}
+    profile_breakdown_line: '<dark_gray>    • <yellow>{check}<gray>: <red>{count}'
+
+    # Encabezado de entradas recientes (muestra los últimos 10 flags).
+    profile_recent_header: '<aqua>  Últimas 10 entradas (más nuevas primero):'
+
+    # Cada fila de entrada reciente. Marcadores: {index} {entry}
+    profile_recent_line: '<dark_gray>  [{index}] {entry}'
+
+    # Pista del pie. Marcador: {player}
+    profile_footer: '<gray>  Usa <yellow>/aet profile {player} [página]<gray> para ver el historial completo.'
+
+    # Se muestra cuando no existe un perfil persistente para el jugador seleccionado.
+    # Marcador: {player}
+    no_profile: '<yellow>No hay historial persistente de <white>{player}<yellow>. Usa /aet status para ver los datos en vivo.'

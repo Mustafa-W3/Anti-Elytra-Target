@@ -1,0 +1,113 @@
+name: AntiElytraTarget
+version: '5.3.1.3'
+main: com.antielytratarget.AntiElytraTargetPlugin
+load: STARTUP
+api-version: '1.16'
+folia-supported: true
+softdepend: [ProtocolLib, ProtocolSupport, ViaVersion, ViaBackwards, ViaRewind, Geyser-Spigot, floodgate]
+description: Advanced elytra targeting hack detection and prevention for Paper, Folia, Spigot 1.16.5+
+author: songolge
+
+commands:
+  antielytratarget:
+    description: Main command for AntiElytraTarget
+    usage: /<command> [log | profile | clear | status | reload | suspect | replay | tpa | language | help] [player] [page]
+    aliases: [aet]
+
+permissions:
+  aet.admin:
+    description: Access to all AntiElytraTarget admin commands
+    default: op
+    children:
+      antielytratarget.op: true
+      aet.notify: true
+      aet.log: true
+      aet.suspect: true
+      aet.profile: true
+      aet.clear: true
+      aet.status: true
+      aet.reload: true
+      aet.replaywatch: true
+      aet.replayspawn: true
+      aet.replaydelete: true
+      aet.replayrecord: true
+      aet.tpa: true
+
+  antielytratarget.op:
+    description: Access to all /aet commands
+    default: op
+    children:
+      antielytratarget.notify: true
+      antielytratarget.suspect: true
+      aet.notify: true
+      aet.log: true
+      aet.suspect: true
+      aet.profile: true
+      aet.clear: true
+      aet.status: true
+      aet.reload: true
+      aet.replaywatch: true
+      aet.replayspawn: true
+      aet.replaydelete: true
+      aet.replayrecord: true
+      aet.tpa: true
+
+  antielytratarget.notify:
+    description: Receive detailed in-game flag alerts
+    default: op
+
+  antielytratarget.suspect:
+    description: Access to /aet suspect GUI leaderboard
+    default: op
+
+  aet.notify:
+    description: Receive detailed in-game flag alerts
+    default: op
+
+  aet.log:
+    description: Toggle personal in-game flag alerts
+    default: op
+
+  aet.suspect:
+    description: Access to /aet suspect GUI leaderboard
+    default: op
+
+  aet.profile:
+    description: View stored flag profiles
+    default: op
+
+  aet.clear:
+    description: Clear stored flag profiles and runtime counters
+    default: op
+
+  aet.status:
+    description: View AntiElytraTarget runtime status
+    default: op
+
+  aet.reload:
+    description: Reload AntiElytraTarget configuration
+    default: op
+
+  aet.replaywatch:
+    description: Watch saved replays and see replay-only actors
+    default: op
+
+  aet.replayspawn:
+    description: Spawn replay playback actors
+    default: op
+
+  aet.replaydelete:
+    description: Delete saved replay files from the replay GUI or command
+    default: op
+
+  aet.replayrecord:
+    description: Manually start replay recordings
+    default: op
+
+  aet.tpa:
+    description: Teleport to a flagged player from alert click actions
+    default: op
+
+  antielytratarget.bypass:
+    description: Bypass ALL AntiElytraTarget checks
+    default: false
